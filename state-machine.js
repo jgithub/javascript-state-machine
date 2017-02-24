@@ -83,6 +83,7 @@
       fsm.transitions = function()      { return (transitions[this.current] || []).concat(transitions[StateMachine.WILDCARD] || []); };
       fsm.isFinished  = function()      { return this.is(terminal); };
       fsm.error       = cfg.error || function(name, from, to, args, error, msg, e) { throw e || msg; }; // default behavior when something unexpected happens is to throw an exception, but caller can override this behavior if desired (see github issue #3 and #17)
+      fsm.sameStateTransitions = !!cfg.sameStateTransitions;
       fsm.states      = function() { return Object.keys(transitions).sort() };
 
       if (initial && !initial.defer)
@@ -159,7 +160,7 @@
         if (false === StateMachine.beforeEvent(this, name, from, to, args))
           return StateMachine.Result.CANCELLED;
 
-        if (from === to) {
+        if (from === to && !this.sameStateTransitions) {
           StateMachine.afterEvent(this, name, from, to, args);
           return StateMachine.Result.NOTRANSITION;
         }
